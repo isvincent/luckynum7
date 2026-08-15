@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans TC',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#7c3aed;text-decoration:none}
+a:hover{color:#6d28d9}
+button{font-family:inherit}
+@keyframes tokenPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.13)}}
+@keyframes drawGlow{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.65)}50%{box-shadow:0 0 0 10px rgba(34,197,94,0)}}
+@keyframes diceSpin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes popIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(560deg);opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+</style>
+</helmet>
+<div style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2.4vmin;overflow-x:hidden;background:radial-gradient(circle at 18% 8%,rgba(165,243,252,.55),transparent 42%),radial-gradient(circle at 82% 14%,rgba(251,207,232,.55),transparent 42%),radial-gradient(circle at 90% 88%,rgba(187,247,208,.5),transparent 42%),linear-gradient(160deg,#eef2ff,#fef9c3);">
+
+  <div style="width:min(96vmin,1080px);max-width:96vw;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:1.4vmin;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:min(6vmin,42px);animation:floaty 2.6s ease-in-out infinite;">🎲</span>
+      <span style="font-family:'Baloo 2',cursive;font-size:min(5.6vmin,44px);font-weight:800;color:#0f172a;line-height:1;">{{ className }}</span>
+      <span style="font-size:min(2.6vmin,17px);font-weight:700;color:#7c3aed;background:#ede9fe;padding:4px 12px;border-radius:999px;">大富翁抽籤棋盤</span>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onClick="{{ onDownload }}" style="font-size:min(2.8vmin,17px);font-weight:800;padding:10px 18px;border:none;border-radius:999px;background:#10b981;color:#fff;cursor:pointer;box-shadow:0 4px 0 #047857;" style-hover="background:#059669;">⬇️ 下載清單</button>
+      <button onClick="{{ onOpenSettings }}" style="font-size:min(2.8vmin,17px);font-weight:800;padding:10px 18px;border:none;border-radius:999px;background:#8b5cf6;color:#fff;cursor:pointer;box-shadow:0 4px 0 #6d28d9;" style-hover="background:#7c3aed;">⚙️ 設定</button>
+    </div>
+  </div>
+
+  <div style="width:min(96vmin,1080px);max-width:96vw;aspect-ratio:1;container-type:inline-size;background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:2.4cqi;padding:1.3cqi;box-shadow:0 24px 60px rgba(0,0,0,.16),inset 0 0 0 4px #fff;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:0.55cqi;position:relative;">
+
+    <sc-for list="{{ cells }}" as="cell" hint-placeholder-count="40">
+      <div style="{{ cell.style }}">
+        <sc-if value="{{ cell.isStudent }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:1.95cqi;font-weight:800;line-height:1;color:#334155;background:rgba(255,255,255,.75);border-radius:5px;padding:0.1cqi 0.7cqi;">{{ cell.num }}</div>
+          <div style="font-size:2.05cqi;font-weight:700;line-height:1.05;color:#111827;">{{ cell.name }}</div>
+          <div style="font-size:1.75cqi;font-weight:800;color:#e11d48;">❤️{{ cell.hearts }}</div>
+        </sc-if>
+        <sc-if value="{{ cell.isCorner }}">
+          <div style="font-size:3.6cqi;line-height:1;">{{ cell.icon }}</div>
+          <div style="font-size:2.1cqi;font-weight:800;letter-spacing:.06em;">{{ cell.label }}</div>
+        </sc-if>
+        <sc-if value="{{ cell.isEvent }}">
+          <div style="font-size:3.1cqi;line-height:1;">{{ cell.icon }}</div>
+          <div style="font-size:1.85cqi;font-weight:800;color:#475569;">{{ cell.label }}</div>
+        </sc-if>
+        <sc-if value="{{ cell.isToken }}">
+          <div style="position:absolute;top:1px;right:2px;font-size:2.8cqi;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));animation:floaty 1.1s ease-in-out infinite;">🐰</div>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <div style="grid-row:2 / 11;grid-column:2 / 11;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6cqi;padding:2.4cqi;text-align:center;">
+      <div style="font-family:'Baloo 2',cursive;font-size:4.6cqi;font-weight:800;color:#7c3aed;text-shadow:0 2px 0 #fff;">🎲 幸運抽籤 🎲</div>
+      <div style="display:flex;gap:2cqi;">
+        <sc-for list="{{ diceList }}" as="die" hint-placeholder-count="2">
+          <div style="{{ die.style }}">{{ die.glyph }}</div>
+        </sc-for>
+      </div>
+      <button onClick="{{ onRoll }}" style="{{ rollStyle }}" style-hover="filter:brightness(1.05)" style-active="transform:translateY(3px)">{{ rollLabel }}</button>
+
+      <sc-if value="{{ showStudentResult }}">
+        <div style="background:#fff;border:0.5cqi solid #22c55e;border-radius:2cqi;padding:1.6cqi 2.6cqi;display:flex;flex-direction:column;align-items:center;gap:0.7cqi;box-shadow:0 1cqi 0 rgba(0,0,0,.07);animation:popIn .35s;">
+          <div style="font-size:2.2cqi;font-weight:800;color:#16a34a;">🎉 抽中了！</div>
+          <div style="font-size:1.9cqi;font-weight:700;color:#64748b;">座號 {{ result.num }}</div>
+          <div style="font-size:4.2cqi;font-weight:800;color:#111827;font-family:'Baloo 2',cursive;line-height:1;">{{ result.name }}</div>
+          <div style="font-size:3.4cqi;font-weight:800;color:#e11d48;line-height:1;">❤️ {{ result.hearts }}</div>
+          <div style="display:flex;gap:1.4cqi;">
+            <button onClick="{{ result.onMinus }}" style="font-size:2.4cqi;font-weight:800;padding:0.7cqi 1.8cqi;border:none;border-radius:1.2cqi;background:#f43f5e;color:#fff;cursor:pointer;box-shadow:0 0.5cqi 0 #be123c;" style-active="transform:translateY(2px)">－1 ❤️</button>
+            <button onClick="{{ result.onPlus }}" style="font-size:2.4cqi;font-weight:800;padding:0.7cqi 1.8cqi;border:none;border-radius:1.2cqi;background:#22c55e;color:#fff;cursor:pointer;box-shadow:0 0.5cqi 0 #15803d;" style-active="transform:translateY(2px)">＋1 ❤️</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showEventResult }}">
+        <div style="background:#fff;border:0.5cqi solid #f59e0b;border-radius:2cqi;padding:1.6cqi 2.4cqi;display:flex;flex-direction:column;align-items:center;gap:0.6cqi;box-shadow:0 1cqi 0 rgba(0,0,0,.07);animation:popIn .35s;max-width:70cqi;">
+          <div style="font-size:2.2cqi;font-weight:800;color:#d97706;">✨ {{ result.tag }} 事件！</div>
+          <div style="font-size:3cqi;font-weight:800;color:#111827;font-family:'Baloo 2',cursive;line-height:1.05;">{{ result.title }}</div>
+          <div style="font-size:1.9cqi;font-weight:600;color:#475569;text-wrap:pretty;">{{ result.text }}</div>
+          <sc-if value="{{ result.hasTarget }}">
+            <div style="font-size:2.4cqi;font-weight:800;color:#16a34a;background:#dcfce7;padding:0.5cqi 1.4cqi;border-radius:1cqi;">🎁 {{ result.targetName }} ＋{{ result.delta }} ❤️</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ confetti }}">
+      <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20;">
+        <sc-for list="{{ confettiPieces }}" as="p" hint-placeholder-count="0">
+          <div style="{{ p.style }}">{{ p.emoji }}</div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ showSettings }}">
+    <div style="position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;">
+      <div style="background:#fff;border-radius:22px;padding:26px;width:min(560px,94vw);max-height:90vh;overflow:auto;box-shadow:0 24px 70px rgba(0,0,0,.35);">
+        <div style="font-family:'Baloo 2',cursive;font-size:27px;font-weight:800;color:#7c3aed;margin-bottom:18px;">⚙️ 抽籤系統設定</div>
+
+        <div style="font-size:15px;font-weight:800;color:#334155;margin-bottom:6px;">班級名稱</div>
+        <input value="{{ draftClass }}" onInput="{{ onDraftClass }}" style="width:100%;font-size:17px;padding:11px 14px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:18px;outline:none;font-family:inherit;" />
+
+        <div style="font-size:15px;font-weight:800;color:#334155;margin-bottom:6px;">學生名單 <span style="font-weight:500;color:#94a3b8;">（每行一位：座號 姓名，可直接貼上匯入）</span></div>
+        <textarea value="{{ draftList }}" onInput="{{ onDraftList }}" rows="11" style="width:100%;font-size:16px;line-height:1.5;padding:12px 14px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:18px;outline:none;font-family:inherit;resize:vertical;"></textarea>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;background:#f8fafc;padding:12px 16px;border-radius:14px;">
+          <button onClick="{{ onToggleMask }}" style="{{ maskBtnStyle }}">{{ maskLabel }}</button>
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#334155;">姓名隱私遮罩（○）</div>
+            <div style="font-size:13px;color:#94a3b8;">開啟時姓名中間字以 ○ 顯示於棋盤</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:12px;">
+          <button onClick="{{ onCancelSettings }}" style="font-size:16px;font-weight:800;padding:11px 22px;border:2px solid #e2e8f0;border-radius:999px;background:#fff;color:#64748b;cursor:pointer;">取消</button>
+          <button onClick="{{ onSaveSettings }}" style="font-size:16px;font-weight:800;padding:11px 26px;border:none;border-radius:999px;background:#8b5cf6;color:#fff;cursor:pointer;box-shadow:0 4px 0 #6d28d9;">儲存設定</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;soundOn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;玩法&quot;},&quot;diceCount&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;1&quot;,&quot;2&quot;],&quot;default&quot;:&quot;2&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;玩法&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const students = this.parseList(this.DEFAULT_LIST);
+    this.state = {
+      className: '102班',
+      students,
+      mask: true,
+      scores: {},
+      tokenIndex: 0,
+      drawnIndex: null,
+      dice: [1,1],
+      rolling: false,
+      moving: false,
+      lastResult: null,
+      confetti: false,
+      confettiPieces: [],
+      showSettings: false,
+      draftClass: '',
+      draftList: '',
+      draftMask: true,
+    };
+  }
+
+  get DEFAULT_LIST(){
+    return `1 王○晴\n2 王○萱\n3 任○珍\n4 呂○潼\n5 宋○昀\n6 施○瑄\n7 洪○綺\n8 孫○涵\n9 徐○柔\n10 張○妮\n11 許○慈\n12 陳○瑄\n13 陳○彤\n14 黄○雅\n15 傅○綺\n16 曾○晴\n17 曾○彤\n18 温○芮\n19 黃○晴\n20 黃○琳\n21 楊○潔\n22 詹○瑊\n23 潘○辰\n24 鄧○予\n25 鄭○沁\n26 戴○鋡\n27 鍾○霓\n28 王○騰\n29 林○緯\n30 范○丞\n31 莊○瀚\n32 陳○元\n33 黃○豪\n34 詹○嘉\n35 劉○佳`;
+  }
+
+  get EVENTS(){
+    return [
+      {t:'機會', title:'班級榮譽榜', text:'一位認真的同學登上榮譽榜！', delta:2, target:'random'},
+      {t:'機會', title:'舉手發言王', text:'今天最勇敢發言的同學獲得肯定。', delta:2, target:'random'},
+      {t:'機會', title:'團隊合作', text:'全班同心協力完成任務，一起加分！', delta:1, target:'all'},
+      {t:'機會', title:'整潔小達人', text:'座位最整齊的同學被老師點名表揚。', delta:3, target:'random'},
+      {t:'命運', title:'熱心助人', text:'有人默默幫助同學，好事有好報。', delta:2, target:'random'},
+      {t:'命運', title:'幸運之星', text:'幸運女神降臨在一位同學身上！', delta:3, target:'random'},
+      {t:'命運', title:'全班同樂', text:'今天大家表現都很棒，全班同享獎勵。', delta:1, target:'all'},
+      {t:'命運', title:'神秘驚喜箱', text:'打開驚喜箱，一位同學抽到大獎！', delta:2, target:'random'},
+    ];
+  }
+
+  cornersMap(){
+    return {
+      0:{label:'機會', color:'#F94144', icon:'🎲'},
+      10:{label:'命運', color:'#9B5DE5', icon:'🔮'},
+      20:{label:'機會', color:'#F3722C', icon:'🎁'},
+      30:{label:'命運', color:'#277DA1', icon:'⭐'},
+    };
+  }
+
+  edgeOrder(){
+    const a=[];
+    for(let i=1;i<=9;i++)a.push(i);
+    for(let i=11;i<=19;i++)a.push(i);
+    for(let i=21;i<=29;i++)a.push(i);
+    for(let i=31;i<=39;i++)a.push(i);
+    return a;
+  }
+
+  gridPos(i){
+    if(i===0) return [1,1];
+    if(i<=9) return [1,i+1];
+    if(i===10) return [1,11];
+    if(i<=19) return [i-9,11];
+    if(i===20) return [11,11];
+    if(i<=29) return [11,11-(i-20)];
+    if(i===30) return [11,1];
+    return [11-(i-30),1];
+  }
+
+  parseList(text){
+    return (text||'').split('\n').map((line,idx)=>{
+      const t=line.trim();
+      if(!t) return null;
+      const m=t.match(/^(\d+)[\s.、,\-]*(.+)$/);
+      if(m) return {num:m[1], name:m[2].trim()};
+      return {num:String(idx+1), name:t};
+    }).filter(Boolean).slice(0,36);
+  }
+
+  maskName(name){
+    if(!this.state.mask) return name;
+    const chars=Array.from(name||'');
+    if(chars.length<=1) return name;
+    if(chars.length===2) return chars[0]+'○';
+    return chars[0] + '○'.repeat(chars.length-2) + chars[chars.length-1];
+  }
+
+  diceCount(){ return parseInt(this.props.diceCount ?? '2',10) || 2; }
+  soundOn(){ return this.props.soundOn ?? true; }
+
+  ensureAudio(){
+    if(!this.ac){ try{ this.ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    if(this.ac && this.ac.state==='suspended') this.ac.resume();
+  }
+  beep(freq,dur,type,vol,when){
+    if(!this.ac || !this.soundOn()) return;
+    const t=this.ac.currentTime+(when||0);
+    const o=this.ac.createOscillator(), g=this.ac.createGain();
+    o.type=type||'square'; o.frequency.value=freq;
+    o.connect(g); g.connect(this.ac.destination);
+    g.gain.setValueAtTime(vol||0.2,t);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.03);
+  }
+  diceSound(){ for(let i=0;i<6;i++){ this.beep(180+Math.random()*260,0.05,'square',0.11,i*0.06); } }
+  tickSound(step){ this.beep(560+step*22,0.06,'triangle',0.18,0); }
+  awardSound(){ [523,659,784,1046].forEach((f,i)=>this.beep(f,0.16,'triangle',0.2,i*0.11)); }
+  eventSound(){ [440,554,659,880].forEach((f,i)=>this.beep(f,0.15,'sawtooth',0.14,i*0.1)); }
+
+  sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  buildConfetti(){
+    const em=['🎉','🎊','⭐','❤️','✨','🎈','🌟'];
+    const arr=[];
+    for(let i=0;i<28;i++){
+      arr.push({ id:i, emoji:em[i%em.length], style:{
+        position:'absolute', left:(Math.random()*100)+'%', top:(-8-Math.random()*10)+'%',
+        fontSize:(16+Math.random()*24)+'px',
+        animation:`confettiFall ${1.6+Math.random()*1.5}s linear ${Math.random()*0.4}s forwards`,
+      }});
+    }
+    return arr;
+  }
+  startConfetti(){
+    clearTimeout(this._ct);
+    this.setState({confetti:true, confettiPieces:this.buildConfetti()});
+    this._ct=setTimeout(()=>this.setState({confetti:false, confettiPieces:[]}),2800);
+  }
+
+  roll = async () => {
+    if(this.state.rolling || this.state.moving) return;
+    this.ensureAudio();
+    const n=this.diceCount();
+    this.setState({rolling:true, lastResult:null, drawnIndex:null, confetti:false, confettiPieces:[]});
+    this.diceSound();
+    const t0=Date.now();
+    while(Date.now()-t0<720){
+      this.setState({dice:Array.from({length:n},()=>1+Math.floor(Math.random()*6))});
+      await this.sleep(80);
+    }
+    const dice=Array.from({length:n},()=>1+Math.floor(Math.random()*6));
+    const steps=dice.reduce((a,b)=>a+b,0);
+    this.setState({dice, rolling:false, moving:true});
+    let idx=this.state.tokenIndex;
+    for(let s=0;s<steps;s++){
+      idx=(idx+1)%40;
+      this.setState({tokenIndex:idx});
+      this.tickSound(s);
+      await this.sleep(Math.max(105, 210 - s*7));
+    }
+    this.land(idx);
+  }
+
+  land(idx){
+    const corners=this.cornersMap();
+    if(corners[idx]){ this.triggerEvent(corners[idx].label, idx); return; }
+    const edge=this.edgeOrder();
+    const ei=edge.indexOf(idx);
+    const st=this.state.students[ei];
+    if(st){
+      this.awardSound();
+      this.setState({moving:false, drawnIndex:idx, lastResult:{kind:'student', num:st.num, name:st.name}});
+      this.startConfetti();
+    } else {
+      this.triggerEvent((ei%2===0)?'機會':'命運', idx);
+    }
+  }
+
+  triggerEvent(label, idx){
+    const pool=this.EVENTS.filter(e=>e.t===label);
+    const ev=pool[Math.floor(Math.random()*pool.length)] || this.EVENTS[0];
+    this.eventSound();
+    let targetNum=null;
+    if(ev.target==='all'){
+      this.setState(s=>{ const sc={...s.scores}; s.students.forEach(st=>{ sc[st.num]=Math.max(0,(sc[st.num]||0)+ev.delta); }); return {scores:sc}; });
+    } else {
+      const arr=this.state.students;
+      if(arr.length){
+        const pick=arr[Math.floor(Math.random()*arr.length)];
+        targetNum=pick.num;
+        this.setState(s=>({scores:{...s.scores,[pick.num]:Math.max(0,(s.scores[pick.num]||0)+ev.delta)}}));
+      }
+    }
+    this.setState({moving:false, drawnIndex:idx, lastResult:{kind:'event', tag:ev.t, title:ev.title, text:ev.text, delta:ev.delta, targetNum, all:ev.target==='all'}});
+    this.startConfetti();
+  }
+
+  adjust(num, d){
+    this.ensureAudio();
+    this.beep(d>0?880:300, 0.13, 'triangle', 0.2, 0);
+    this.setState(s=>({scores:{...s.scores,[num]:Math.max(0,(s.scores[num]||0)+d)}}));
+    if(d>0) this.startConfetti();
+  }
+
+  download(){
+    const {className, students, scores}=this.state;
+    const lines=[];
+    lines.push(`班級：${className}`);
+    lines.push(`匯出時間：${new Date().toLocaleString('zh-TW')}`);
+    lines.push('');
+    lines.push('座號\t姓名\t愛心分數');
+    let total=0;
+    students.forEach(st=>{ const sc=scores[st.num]||0; total+=sc; lines.push(`${st.num}\t${st.name}\t${sc}`); });
+    lines.push('');
+    lines.push(`全班愛心總計：${total}`);
+    const blob=new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`${className}_愛心分數清單.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+
+  openSettings(){
+    this.setState({
+      showSettings:true,
+      draftClass:this.state.className,
+      draftList:this.state.students.map(s=>`${s.num} ${s.name}`).join('\n'),
+      draftMask:this.state.mask,
+    });
+  }
+  saveSettings(){
+    const students=this.parseList(this.state.draftList);
+    this.setState({
+      className:(this.state.draftClass||'').trim() || '我的班級',
+      students,
+      mask:this.state.draftMask,
+      showSettings:false,
+      tokenIndex:0, drawnIndex:null, lastResult:null,
+    });
+  }
+
+  renderVals(){
+    const s=this.state;
+    const corners=this.cornersMap();
+    const edge=this.edgeOrder();
+    const sideColor=i=>{
+      if(i>=1&&i<=9) return '#FF5D8F';
+      if(i>=11&&i<=19) return '#4CC9F0';
+      if(i>=21&&i<=29) return '#43AA8B';
+      return '#FFB703';
+    };
+    const cells=[];
+    for(let i=0;i<40;i++){
+      const [row,col]=this.gridPos(i);
+      const isToken=s.tokenIndex===i;
+      const isDrawn=s.drawnIndex===i;
+      let kind='event', num='', name='', hearts=0, icon='', label='', bg='#ffffff', fg='#1f2937', band='';
+      if(corners[i]){
+        kind='corner'; const c=corners[i]; icon=c.icon; label=c.label; bg=c.color; fg='#ffffff'; band=c.color;
+      } else {
+        const ei=edge.indexOf(i);
+        const st=s.students[ei];
+        if(st){ kind='student'; num=st.num; name=this.maskName(st.name); hearts=s.scores[st.num]||0; band=sideColor(i); bg='#ffffff'; }
+        else { kind='event'; const chance=(ei%2===0); label=chance?'機會':'命運'; icon=chance?'🎲':'🔮'; bg=chance?'#FEF08A':'#DDD6FE'; fg='#334155'; }
+      }
+      const style={
+        gridRow:String(row), gridColumn:String(col),
+        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+        gap:'0.15cqi', borderRadius:'0.9cqi', padding:'0.35cqi',
+        background:bg, color:fg, position:'relative', overflow:'hidden',
+        minWidth:0, textAlign:'center', boxSizing:'border-box',
+        boxShadow:'0 3px 0 rgba(0,0,0,.10)',
+        borderTop: kind==='student' ? '0.9cqi solid '+band : 'none',
+        transition:'transform .12s',
+      };
+      if(isToken){ style.boxShadow='0 0 0 4px #facc15, 0 6px 14px rgba(0,0,0,.25)'; style.zIndex=5; style.animation='tokenPulse .6s ease-in-out infinite'; }
+      if(isDrawn){ style.outline='5px solid #22c55e'; style.zIndex=6; style.transform='scale(1.05)'; style.animation='drawGlow 1s ease-in-out infinite'; }
+      cells.push({index:i, isStudent:kind==='student', isCorner:kind==='corner', isEvent:kind==='event', num, name, hearts, icon, label, isToken, style});
+    }
+
+    const faces=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+    const n=this.diceCount();
+    const dvals=(s.dice||[]).slice(0,n);
+    while(dvals.length<n) dvals.push(1);
+    const diceList=dvals.map((v,i)=>({ id:i, glyph:faces[v]||'⚀', style:{
+      fontSize:'12cqi', lineHeight:1, color:'#7c3aed',
+      filter:'drop-shadow(0 4px 3px rgba(0,0,0,.15))',
+      animation: s.rolling?'diceSpin .3s linear infinite':'none',
+    }}));
+
+    const busy=s.rolling||s.moving;
+    const rollLabel = s.rolling ? '🎲 擲骰中…' : (s.moving ? '🐰 前進中…' : '🎲 擲骰子！');
+    const rollStyle={
+      fontFamily:"'Baloo 2',cursive", fontSize:'3.2cqi', fontWeight:800,
+      padding:'1.1cqi 3.6cqi', border:'none', borderRadius:'999px', color:'#fff',
+      background:'linear-gradient(135deg,#f472b6,#f59e0b)',
+      cursor: busy?'not-allowed':'pointer', boxShadow:'0 0.7cqi 0 #b45309',
+      opacity: busy?0.7:1,
+    };
+
+    const lr=s.lastResult;
+    let result=null, showStudentResult=false, showEventResult=false;
+    if(lr && lr.kind==='student'){
+      showStudentResult=true;
+      result={ num:lr.num, name:this.maskName(lr.name), hearts:s.scores[lr.num]||0,
+        onPlus:()=>this.adjust(lr.num,1), onMinus:()=>this.adjust(lr.num,-1) };
+    } else if(lr && lr.kind==='event'){
+      showEventResult=true;
+      const tstudent = lr.targetNum!=null ? s.students.find(x=>x.num===lr.targetNum) : null;
+      result={ tag:lr.tag, title:lr.title, text:lr.text, delta:lr.delta,
+        hasTarget: lr.all ? true : !!tstudent,
+        targetName: lr.all ? '全班同學' : (tstudent?this.maskName(tstudent.name):'') };
+    }
+
+    const maskLabel = s.draftMask ? '🔒 已開啟' : '🔓 已關閉';
+    const maskBtnStyle={
+      fontSize:'15px', fontWeight:800, padding:'9px 16px', border:'none', borderRadius:'999px',
+      cursor:'pointer', color:'#fff', whiteSpace:'nowrap',
+      background: s.draftMask ? '#8b5cf6' : '#94a3b8',
+    };
+
+    return {
+      className:s.className, cells, diceList, rollLabel, rollStyle,
+      showStudentResult, showEventResult, result,
+      confetti:s.confetti, confettiPieces:s.confettiPieces,
+      showSettings:s.showSettings, draftClass:s.draftClass, draftList:s.draftList,
+      maskLabel, maskBtnStyle,
+      onRoll:this.roll,
+      onDownload:()=>this.download(),
+      onOpenSettings:()=>this.openSettings(),
+      onCancelSettings:()=>this.setState({showSettings:false}),
+      onSaveSettings:()=>this.saveSettings(),
+      onToggleMask:()=>this.setState(st=>({draftMask:!st.draftMask})),
+      onDraftClass:(e)=>this.setState({draftClass:e.target.value}),
+      onDraftList:(e)=>this.setState({draftList:e.target.value}),
+    };
+  }
+}
+</script>
+</body>
+</html>
